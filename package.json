@@ -1,0 +1,17 @@
+{
+  "name": "local-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/jheeju/local-api.git",
+  "author": "jheeju <jheeju.dev@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "client": "yarn workspace client start",
+    "server": "yarn workspace server start"
+  }
+}
