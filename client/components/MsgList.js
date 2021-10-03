@@ -15,6 +15,8 @@ const initialMsgs = Array(50)
   }))
   .reverse();
 
+// console.log(JSON.stringify(initialMsgs));
+
 const MsgList = () => {
   const [msgs, setMsgs] = useState(initialMsgs);
   const [editingId, setEditingId] = useState(null);
