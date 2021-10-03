@@ -10,7 +10,7 @@ const filenames = {
 
 export const readDB = (target) => {
   try {
-    return JSON.parse(fs.readFileSync(fileName[target], "utf-8"));
+    return JSON.parse(fs.readFileSync(filenames[target], "utf-8"));
   } catch (err) {
     console.log(err);
   }
