@@ -62,7 +62,7 @@ const messagesRoute = [
           throw "사용자가 다릅니다.";
         }
         const newMsg = { ...msgs[targetIndex], text: body.text };
-        msgs.splice(targetIndex, 1, newMgs);
+        msgs.splice(targetIndex, 1, newMsg);
         setMsgs(msgs);
         res.send(newMsg);
       } catch (err) {
@@ -74,14 +74,19 @@ const messagesRoute = [
     // DELETE MESSAGE
     method: "delete",
     route: "/messages/:id",
-    handler: ({ body, params: { id } }, res) => {
+    handler: (req, res) => {
+      console.log(req);
+      const {
+        params: { id },
+        query: { userId },
+      } = req;
       try {
         const msgs = getMsgs();
         const targetIndex = msgs.findIndex((msg) => msg.id === id);
         if (targetIndex < 0) {
           throw "메시지가 없습니다.";
         }
-        if (msgs[targetIndex].userId !== body.userId) {
+        if (msgs[targetIndex].userId !== userId) {
           throw "사용자가 다릅니다.";
         }
         msgs.splice(targetIndex, 1);
