@@ -1,21 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import MsgInput from "./MsgInput";
 import MsgItem from "./MsgItem";
 import fetcher from "../fetcher";
-
-// const UserIds = ["roy", "jay"];
-// const getRandomUserId = () => UserIds[Math.round(Math.random())];
-
-// const initialMsgs = Array(50)
-//   .fill(0)
-//   .map((_, i) => ({
-//     id: 50 - i,
-//     userId: getRandomUserId(),
-//     timestamp: 1234567890123 + (50 - i) * 1000 * 60,
-//     text: `${50 - i} mock text`,
-//   }));
-// console.log(JSON.stringify(initialMsgs));
+import useInfiniteScroll from "../hooks/UseInfiniteScroll";
 
 const MsgList = () => {
   const {
@@ -23,6 +11,9 @@ const MsgList = () => {
   } = useRouter();
   const [msgs, setMsgs] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [hasNext, setHasNext] = useState(true)
+  const fetchMoreEl = useRef(null);
+  const intersecting = useInfiniteScroll(fetchMoreEl);
 
   const onCreate = async (text) => {
     const newMsg = await fetcher("post", "./messages", { text, userId });
@@ -61,30 +52,39 @@ const MsgList = () => {
   };
 
   const getMessages = async () => {
-    const msgs = await fetcher("get", "/messages");
-    setMsgs(msgs);
+    const newMsgs = await fetcher("get", "/messages", {
+      params: { cursor: msgs[msgs.length - 1]?.id || "" },
+    });
+    if (newMsgs.length === 0) {
+      setHasNext(false)
+      return
+    }
+    setMsgs((msgs) => [...msgs, ...newMsgs]);
   };
 
   useEffect(() => {
-    getMessages();
-  }, []);
+    if (intersecting && hasNext) {
+      getMessages();
+    }
+  }, [intersecting]);
 
   return (
     <>
       <MsgInput mutate={onCreate} />
       <ul className="messages">
-        {msgs.map((el) => (
+        {msgs.map((x) => (
           <MsgItem
-            key={el.id}
-            {...el}
+            key={x.id}
+            {...x}
             onUpdate={onUpdate}
-            onDelete={() => onDelete(el.id)}
-            startEdit={() => setEditingId(el.id)}
-            isEditing={editingId === el.id}
+            onDelete={() => onDelete(x.id)}
+            startEdit={() => setEditingId(x.id)}
+            isEditing={editingId === x.id}
             myId={userId}
           />
         ))}
       </ul>
+      <div ref={fetchMoreEl} />
     </>
   );
 };

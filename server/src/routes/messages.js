@@ -8,9 +8,10 @@ const messagesRoute = [
     // GET MESSAGES
     method: "get",
     route: "/messages",
-    handler: (req, res) => {
+    handler: ({ query: { cursor = "" } }, res) => {
       const msgs = getMsgs();
-      res.send(msgs);
+      const fromIndex = msgs.findIndex((msg) => msg.id === cursor) + 1;
+      res.send(msgs.slice(fromIndex, fromIndex + 15));
     },
   },
   {
@@ -74,12 +75,7 @@ const messagesRoute = [
     // DELETE MESSAGE
     method: "delete",
     route: "/messages/:id",
-    handler: (req, res) => {
-      console.log(req);
-      const {
-        params: { id },
-        query: { userId },
-      } = req;
+    handler: ({ params: { id }, query: { userId } }, res) => {
       try {
         const msgs = getMsgs();
         const targetIndex = msgs.findIndex((msg) => msg.id === id);
